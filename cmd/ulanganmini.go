@@ -11,7 +11,7 @@ func main() {
 	fmt.Println("Welcome to Ulangan Mini!")
 
 	ctx := context.Background()
-	runner := runner.NewRunner(ctx)
-	
-	runner.Run()
+	runner := runner.NewRunner()
+
+	runner.Run(ctx)
 }

@@ -15,20 +15,19 @@ func init() {
 }
 
 type Runner struct {
-	ctx context.Context
 	client *client.Client
 }
 
-func NewRunner(ctx context.Context) *Runner {
+func NewRunner() *Runner {
 	return &Runner{
-		ctx: ctx,
 		client: DefaultClient,
 	}
 }
 
-func (r Runner) Run() {
+func (r Runner) Run(ctx context.Context) {
+	// cancel()
 	// check connection
-	err := r.client.RunPing()
+	err := r.client.RunPing(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

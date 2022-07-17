@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -29,7 +30,7 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) RunPing() error {
+func (c *Client) RunPing(ctx context.Context) error {
 	url := fmt.Sprint(c.host, "/ping")
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
