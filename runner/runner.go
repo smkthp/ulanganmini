@@ -2,7 +2,9 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/smkthp/ulanganmini/client"
 )
@@ -27,8 +29,28 @@ func NewRunner() *Runner {
 func (r Runner) Run(ctx context.Context) {
 	// cancel()
 	// check connection
+	pingfinish := make(chan bool)
+
+	fmt.Println("Pinging the server")
+	
+	go func() {
+		p:
+		for {
+			select {
+			case <- pingfinish:
+				fmt.Println("OK!")
+				break p
+			default :
+				fmt.Print(".")
+			}
+			time.Sleep(time.Millisecond * 50)
+		}
+	}()
+
 	err := r.client.RunPing(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	pingfinish <- true;
 }
