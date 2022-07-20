@@ -34,6 +34,14 @@ func (r Runner) Run(ctx context.Context) {
 	time.Sleep(time.Millisecond * 500)
 }
 
+func (r Runner) Print(a ...any) (n int, err error) {
+	return r.writer.Print(a...)
+}
+
+func (r Runner) Println(a ...any) (n int, err error) {
+	return r.writer.Println(a...)
+}
+
 func pingServer(r Runner, ctx context.Context) {
 	pingfinish := make(chan bool)
 
