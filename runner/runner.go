@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -45,17 +44,17 @@ func (r Runner) Println(a ...any) (n int, err error) {
 func pingServer(r Runner, ctx context.Context) {
 	pingfinish := make(chan bool)
 
-	fmt.Println("Pinging the server")
+	r.Println("Pinging the server")
 	
 	go func() {
 		p:
 		for {
 			select {
 			case <- pingfinish:
-				fmt.Println("OK!")
+				r.Println("OK!")
 				break p
 			default :
-				fmt.Print(".")
+				r.Print(".")
 			}
 			time.Sleep(time.Millisecond * 50)
 		}
