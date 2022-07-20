@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/smkthp/ulanganmini/client"
+	"github.com/smkthp/ulanganmini/writer"
 )
 
 // api client used by runner
@@ -18,11 +19,13 @@ func init() {
 
 type Runner struct {
 	client *client.Client
+	writer *writer.Writer
 }
 
-func NewRunner() *Runner {
+func NewRunner(writer *writer.Writer) *Runner {
 	return &Runner{
 		client: DefaultClient,
+		writer: writer,
 	}
 }
 
