@@ -18,14 +18,14 @@ func NewWriter() *Writer {
 	}
 }
 
-func (w *Writer) Print(a ...any) {
+func (w *Writer) Print(a ...any) (n int, err error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	fmt.Fprint(w.writer, a...)
+	return fmt.Fprint(w.writer, a...)
 }
 
-func (w *Writer) Println(a ...any) {
+func (w *Writer) Println(a ...any) (n int, err error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	fmt.Fprintln(w.writer, a...)
+	return fmt.Fprintln(w.writer, a...)
 }
