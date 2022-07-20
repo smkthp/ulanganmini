@@ -27,8 +27,11 @@ func NewRunner() *Runner {
 }
 
 func (r Runner) Run(ctx context.Context) {
-	// cancel()
-	// check connection
+	pingServer(r, ctx)
+	time.Sleep(time.Millisecond * 500)
+}
+
+func pingServer(r Runner, ctx context.Context) {
 	pingfinish := make(chan bool)
 
 	fmt.Println("Pinging the server")
