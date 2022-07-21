@@ -24,7 +24,7 @@ func ClearTerminal() {
 	}
 }
 
-func unmarshalTasks(p []byte) ([]system.Task, error) {
+func UnmarshalTasks(p []byte) ([]system.Task, error) {
 	var tasks []system.Task
 
 	if err := json.Unmarshal(p, &tasks); err != nil {

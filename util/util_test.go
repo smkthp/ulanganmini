@@ -14,7 +14,7 @@ func TestUnmarshalTasks(t *testing.T) {
 		{ID: 2, Title: "t2"},
 	}
 
-	tasks, err := unmarshalTasks([]byte(body))
+	tasks, err := UnmarshalTasks([]byte(body))
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
