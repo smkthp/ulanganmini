@@ -52,6 +52,7 @@ func pingServer(r Runner, ctx context.Context) {
 			select {
 			case <- pingfinish:
 				r.Println("OK!")
+				close(pingfinish)
 				break p
 			default :
 				r.Print(".")
