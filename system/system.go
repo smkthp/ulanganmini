@@ -1,18 +1,18 @@
 package system
 
 type Task struct {
-	ID    int
-	Title string
+	ID    int    `json:"taskID"`
+	Title string `json:"title"`
 }
 type Choice struct {
-	ID    int
-	Label string
-	Body  string
+	ID    int    `json:"choiceID"`
+	Label string `json:"label"`
+	Body  string `json:"body"`
 }
 
 type Question struct {
-	Type   int
-	Body   string
+	Type   int    `json:"type"`
+	Body   string `json:"body"`
 	Task   *Task
 	Choice *Choice
 }
