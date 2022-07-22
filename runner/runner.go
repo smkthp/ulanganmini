@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/smkthp/ulanganmini/client"
@@ -41,20 +40,27 @@ func (r Runner) Println(a ...any) (n int, err error) {
 	return r.writer.Println(a...)
 }
 
-func pingServer(r Runner, ctx context.Context) {
-	pingfinish := make(chan bool)
+func pingServer(r Runner, ctx context.Context) error {
+	pingOk := make(chan bool)
 
 	r.Println("Pinging the server")
-	
+
 	go func() {
-		p:
+	p:
 		for {
 			select {
-			case <- pingfinish:
-				r.Println("OK!")
-				close(pingfinish)
+			case ok := <- pingOk:
+				if !ok {
+					r.Println("FAIL")
+				}
+
+				if ok {
+					r.Println("OK")
+				}
+
+				close(pingOk)
 				break p
-			default :
+			default:
 				r.Print(".")
 			}
 			time.Sleep(time.Millisecond * 50)
@@ -63,8 +69,10 @@ func pingServer(r Runner, ctx context.Context) {
 
 	err := r.client.RunPing(ctx)
 	if err != nil {
-		log.Fatal(err)
+		pingOk <- false
+		return err
 	}
 
-	pingfinish <- true;
+	pingOk <- true
+	return nil
 }
