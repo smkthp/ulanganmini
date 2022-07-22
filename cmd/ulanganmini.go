@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/smkthp/ulanganmini/reader"
 	"github.com/smkthp/ulanganmini/runner"
 	"github.com/smkthp/ulanganmini/writer"
 )
@@ -13,7 +14,8 @@ func main() {
 
 	ctx := context.Background()
 	writer := writer.NewWriter()
-	runner := runner.NewRunner(writer)
+	reader := reader.NewReader()
+	runner := runner.NewRunner(writer, reader)
 
 	runner.Run(ctx)
 }

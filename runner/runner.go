@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/smkthp/ulanganmini/client"
+	"github.com/smkthp/ulanganmini/reader"
+	"github.com/smkthp/ulanganmini/util"
 	"github.com/smkthp/ulanganmini/writer"
 )
 
@@ -18,17 +20,31 @@ func init() {
 type Runner struct {
 	client *client.Client
 	writer *writer.Writer
+	reader *reader.Reader
 }
 
-func NewRunner(writer *writer.Writer) *Runner {
+func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
 	return &Runner{
 		client: DefaultClient,
 		writer: writer,
+		reader: reader,
 	}
 }
 
 func (r Runner) Run(ctx context.Context) {
-	pingServer(r, ctx)
+	for {
+		err := pingServer(r, ctx)
+		if err != nil {
+			r.Println("Press ENTER to try again! ")
+			r.reader.ReadLine()
+			util.ClearTerminal()
+			continue
+		}
+
+		break
+	}
+	
+	
 	time.Sleep(time.Millisecond * 500)
 }
 
