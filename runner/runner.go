@@ -6,7 +6,6 @@ import (
 
 	"github.com/smkthp/ulanganmini/client"
 	"github.com/smkthp/ulanganmini/reader"
-	"github.com/smkthp/ulanganmini/util"
 	"github.com/smkthp/ulanganmini/writer"
 )
 
@@ -17,10 +16,20 @@ func init() {
 	DefaultClient = client.NewClient()
 }
 
+type state int
+
+const (
+	StateBoot state = iota
+	StateIdle
+	StatePing
+	StateGetTasks
+)
+
 type Runner struct {
 	client *client.Client
 	writer *writer.Writer
 	reader *reader.Reader
+	state  state
 }
 
 func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
@@ -28,24 +37,35 @@ func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
 		client: DefaultClient,
 		writer: writer,
 		reader: reader,
+		state:  StateIdle,
 	}
 }
 
-func (r Runner) Run(ctx context.Context) {
-	for {
-		err := pingServer(r, ctx)
+func (r *Runner) Run(ctx context.Context) {
+	r.Repl(ctx)
+}
+
+func (r *Runner) Exec(ctx context.Context, str string) string {
+	switch r.state {
+	case StateIdle:
+		r.state = StatePing
+		r.Exec(ctx, str)
+	case StatePing:
+		err := pingServer(*r, ctx)
 		if err != nil {
 			r.Println("Press ENTER to try again! ")
-			r.reader.ReadLine()
-			util.ClearTerminal()
-			continue
 		}
-
-		break
 	}
-	
-	
-	time.Sleep(time.Millisecond * 500)
+
+	return ""
+}
+
+func (r *Runner) Repl(ctx context.Context) {
+	for {
+		r.Print(">>> ")
+		str := r.reader.ReadLine()
+		r.Println(r.Exec(ctx, str))
+	}
 }
 
 func (r Runner) Print(a ...any) (n int, err error) {
@@ -58,6 +78,7 @@ func (r Runner) Println(a ...any) (n int, err error) {
 
 func pingServer(r Runner, ctx context.Context) error {
 	pingOk := make(chan bool)
+	defer close(pingOk)
 
 	r.Println("Pinging the server")
 
@@ -65,7 +86,7 @@ func pingServer(r Runner, ctx context.Context) error {
 	p:
 		for {
 			select {
-			case ok := <- pingOk:
+			case ok := <-pingOk:
 				if !ok {
 					r.Println("FAIL")
 				}
@@ -74,7 +95,6 @@ func pingServer(r Runner, ctx context.Context) error {
 					r.Println("OK")
 				}
 
-				close(pingOk)
 				break p
 			default:
 				r.Print(".")
