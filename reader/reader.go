@@ -9,12 +9,12 @@ import (
 
 type Reader struct {
 	mu     sync.Mutex
-	reader io.Reader
+	Reader io.Reader
 }
 
 func NewReader() *Reader {
 	return &Reader{
-		reader: os.Stdin,
+		Reader: os.Stdin,
 	}
 }
 
@@ -22,7 +22,7 @@ func (r *Reader) ReadLine() (ret string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	reader := bufio.NewReader(r.reader)
+	reader := bufio.NewReader(r.Reader)
 	bytes, _, err := reader.ReadLine()
 	if err != nil {
 		return

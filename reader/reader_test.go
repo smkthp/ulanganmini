@@ -7,7 +7,7 @@ import (
 
 func TestNewReader(t *testing.T) {
 	reader := NewReader()
-	if reader.reader == nil {
+	if reader.Reader == nil {
 		t.Fatal("NewReader return writer with nil io.Writer inside it")
 	}
 }
@@ -15,7 +15,7 @@ func TestNewReader(t *testing.T) {
 func TestReadLine(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{'k', 'u', 'd', 'a', '\n'})
 	reader := Reader {
-		reader: buf,
+		Reader: buf,
 	}
 	want := "kuda"
 
