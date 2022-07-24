@@ -3,8 +3,12 @@ package client
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
+
+	"github.com/smkthp/ulanganmini/system"
+	"github.com/smkthp/ulanganmini/util"
 )
 
 const (
@@ -42,6 +46,26 @@ func (c *Client) RunPing(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (c *Client) RunGetTasks(ctx context.Context) ([]system.Task, error) {
+	url := fmt.Sprint(c.host, "/tasks")
+	resp, err := c.httpClient.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks, err := util.UnmarshalTasks(body)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }
 
 func concatHostPort(host, port string) string {
