@@ -2,7 +2,8 @@ package runner
 
 import (
 	"context"
-	"time"
+	"errors"
+	"os"
 
 	"github.com/smkthp/ulanganmini/client"
 	"github.com/smkthp/ulanganmini/reader"
@@ -25,16 +26,60 @@ const (
 	StateGetTasks
 )
 
+type RunnerFunc func(Runner, context.Context) error
+
+type Chain struct {
+	fns []RunnerFunc
+	// indicates the func index in fns that will be processed
+	index int
+}
+
+// add RunnerFunc to the chain without adding context.
+// the f will be called with context from Run(`ctx`)
+func (c *Chain) AddFunc(f RunnerFunc) {
+	c.fns = append(c.fns, f)
+}
+
+func (c *Chain) AddFuncCtx(f RunnerFunc, ctx context.Context) {
+	callback := func(r Runner, _ context.Context) error {
+		return f(r, ctx)
+	}
+
+	c.fns = append(c.fns, callback)
+}
+
+// Checking if the fns[index] exist. If does not exist will return error
+func (c *Chain) Next() error {
+	if len(c.fns) > c.index {
+		return nil
+	}
+
+	return errors.New("index out of bounds")
+}
+
+// Takes function from chain based on the internal index.
+// Make sure call Next() first to verify if next function available.
+// Returns RunnerFunc and its index
+func (c *Chain) GetFunc() (RunnerFunc, int) {
+	return c.fns[c.index], c.index
+}
+
+// Will set index to index+1
+func (c *Chain) Done() {
+	c.index = c.index + 1
+}
+
 type Runner struct {
-	client *client.Client
+	Client *client.Client
 	writer *writer.Writer
 	reader *reader.Reader
 	state  state
+	chain  Chain
 }
 
 func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
 	return &Runner{
-		client: DefaultClient,
+		Client: DefaultClient,
 		writer: writer,
 		reader: reader,
 		state:  StateIdle,
@@ -42,30 +87,33 @@ func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
 }
 
 func (r *Runner) Run(ctx context.Context) {
-	r.Repl(ctx)
-}
-
-func (r *Runner) Exec(ctx context.Context, str string) string {
-	switch r.state {
-	case StateIdle:
-		r.state = StatePing
-		r.Exec(ctx, str)
-	case StatePing:
-		err := pingServer(*r, ctx)
-		if err != nil {
-			r.Println("Press ENTER to try again! ")
-		}
-	}
-
-	return ""
-}
-
-func (r *Runner) Repl(ctx context.Context) {
 	for {
-		r.Print(">>> ")
-		str := r.reader.ReadLine()
-		r.Println(r.Exec(ctx, str))
+		if err := r.chain.Next(); err != nil {
+			os.Exit(0)
+		}
+
+		fn, _ := r.chain.GetFunc()
+		
+		if err := fn(*r, ctx); err != nil {
+			r.Println(err)
+			r.Prompt("")
+			continue
+		}
+
+		r.chain.Done()
 	}
+
+}
+
+func (r *Runner) SetChain(chain Chain) {
+	r.chain = chain
+}
+
+func (r *Runner) Prompt(prefix string) string {
+	r.Print(prefix)
+	r.Print(">>> ")
+	str := r.reader.ReadLine()
+	return str
 }
 
 func (r Runner) Print(a ...any) (n int, err error) {
@@ -74,41 +122,4 @@ func (r Runner) Print(a ...any) (n int, err error) {
 
 func (r Runner) Println(a ...any) (n int, err error) {
 	return r.writer.Println(a...)
-}
-
-func pingServer(r Runner, ctx context.Context) error {
-	pingOk := make(chan bool)
-	defer close(pingOk)
-
-	r.Println("Pinging the server")
-
-	go func() {
-	p:
-		for {
-			select {
-			case ok := <-pingOk:
-				if !ok {
-					r.Println("FAIL")
-				}
-
-				if ok {
-					r.Println("OK")
-				}
-
-				break p
-			default:
-				r.Print(".")
-			}
-			time.Sleep(time.Millisecond * 50)
-		}
-	}()
-
-	err := r.client.RunPing(ctx)
-	if err != nil {
-		pingOk <- false
-		return err
-	}
-
-	pingOk <- true
-	return nil
 }
