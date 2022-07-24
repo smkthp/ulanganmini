@@ -7,7 +7,7 @@ import (
 
 func TestNewWriter(t *testing.T) {
 	writer := NewWriter()
-	if writer.writer == nil {
+	if writer.Writer == nil {
 		t.Fatal("NewWriter return writer with nil io.Writer inside it")
 	}
 }
@@ -15,7 +15,7 @@ func TestNewWriter(t *testing.T) {
 func TestPrint(t *testing.T) {
 	want := "test"
 	buf := bytes.NewBuffer(nil)
-	writer := &Writer{writer: buf}
+	writer := &Writer{Writer: buf}
 	writer.Print(want)
 
 	got := buf.String()
@@ -28,7 +28,7 @@ func TestPrint(t *testing.T) {
 func TestPrintln(t *testing.T) {
 	want := "test\n"
 	buf := bytes.NewBuffer(nil)
-	writer := &Writer{writer: buf}
+	writer := &Writer{Writer: buf}
 	writer.Println("test")
 
 	got := buf.String()

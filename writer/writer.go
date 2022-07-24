@@ -9,23 +9,23 @@ import (
 
 type Writer struct {
 	mu sync.Mutex
-	writer io.Writer
+	Writer io.Writer
 }
 
 func NewWriter() *Writer {
 	return &Writer{
-		writer: os.Stdout,
+		Writer: os.Stdout,
 	}
 }
 
 func (w *Writer) Print(a ...any) (n int, err error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return fmt.Fprint(w.writer, a...)
+	return fmt.Fprint(w.Writer, a...)
 }
 
 func (w *Writer) Println(a ...any) (n int, err error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return fmt.Fprintln(w.writer, a...)
+	return fmt.Fprintln(w.Writer, a...)
 }
