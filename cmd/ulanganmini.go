@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/smkthp/ulanganmini/reader"
 	Runner "github.com/smkthp/ulanganmini/runner"
+	"github.com/smkthp/ulanganmini/system"
 	"github.com/smkthp/ulanganmini/writer"
 )
 
@@ -20,6 +22,7 @@ func main() {
 
 	chain := Runner.Chain{}
 	chain.AddFunc(pingServer)
+	chain.AddFunc(getTasks)
 
 	runner.SetChain(chain)
 	runner.Run(ctx)
@@ -60,4 +63,27 @@ func pingServer(r Runner.Runner, ctx context.Context) error {
 
 	pingOk <- true
 	return nil
+}
+
+func getTasks(r Runner.Runner, ctx context.Context) error {
+	tasks, err := r.Client.RunGetTasks(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(tasks) < 1 {
+		return errors.New("no tasks yet")
+	}
+
+	displayTasks(r.Writer, tasks...)
+
+	return nil
+}
+
+func displayTasks(w *writer.Writer, tasks ...system.Task) {
+	w.Println("List of Tasks:")
+
+	for i, task := range tasks {
+		w.Println(fmt.Sprintf("%d. %s", i+1, task.Title))
+	}
 }
