@@ -71,8 +71,8 @@ func (c *Chain) Done() {
 
 type Runner struct {
 	Client *client.Client
-	writer *writer.Writer
-	reader *reader.Reader
+	Writer *writer.Writer
+	Reader *reader.Reader
 	state  state
 	chain  Chain
 }
@@ -80,8 +80,8 @@ type Runner struct {
 func NewRunner(writer *writer.Writer, reader *reader.Reader) *Runner {
 	return &Runner{
 		Client: DefaultClient,
-		writer: writer,
-		reader: reader,
+		Writer: writer,
+		Reader: reader,
 		state:  StateIdle,
 	}
 }
@@ -95,7 +95,7 @@ func (r *Runner) Run(ctx context.Context) {
 		fn, _ := r.chain.GetFunc()
 		
 		if err := fn(*r, ctx); err != nil {
-			r.Println(err)
+			r.Println("Hit Enter to try again!")
 			r.Prompt("")
 			continue
 		}
@@ -112,14 +112,14 @@ func (r *Runner) SetChain(chain Chain) {
 func (r *Runner) Prompt(prefix string) string {
 	r.Print(prefix)
 	r.Print(">>> ")
-	str := r.reader.ReadLine()
+	str := r.Reader.ReadLine()
 	return str
 }
 
 func (r Runner) Print(a ...any) (n int, err error) {
-	return r.writer.Print(a...)
+	return r.Writer.Print(a...)
 }
 
 func (r Runner) Println(a ...any) (n int, err error) {
-	return r.writer.Println(a...)
+	return r.Writer.Println(a...)
 }
