@@ -3,6 +3,7 @@ package runner
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/smkthp/ulanganmini/client"
@@ -95,6 +96,7 @@ func (r *Runner) Run(ctx context.Context) {
 		fn, _ := r.chain.GetFunc()
 		
 		if err := fn(*r, ctx); err != nil {
+			r.Println(fmt.Sprintf("%s", err))
 			r.Println("Hit Enter to try again!")
 			r.Prompt("")
 			continue
