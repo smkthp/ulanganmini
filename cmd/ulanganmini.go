@@ -66,6 +66,8 @@ func pingServer(r Runner.Runner, ctx context.Context) error {
 }
 
 func getTasks(r Runner.Runner, ctx context.Context) error {
+	r.Println("Getting Tasks...")
+
 	tasks, err := r.Client.RunGetTasks(ctx)
 	if err != nil {
 		return err
