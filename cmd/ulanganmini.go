@@ -86,6 +86,6 @@ func displayTasks(w *writer.Writer, tasks ...system.Task) {
 	w.Println("List of Tasks:")
 
 	for i, task := range tasks {
-		w.Println(fmt.Sprintf("%d. %s", i+1, task.Title))
+		w.Println(fmt.Sprintf("%d. %s", i+1, task.Name))
 	}
 }

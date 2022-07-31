@@ -1,8 +1,9 @@
 package system
 
 type Task struct {
-	ID    int    `json:"taskID"`
-	Title string `json:"title"`
+	ID    int    `json:"id"`
+	Name string `json:"name"`
+	Desc string `json:"desc"`
 }
 type Choice struct {
 	ID    int    `json:"choiceID"`
