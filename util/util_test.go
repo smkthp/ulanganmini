@@ -8,10 +8,10 @@ import (
 )
 
 func TestUnmarshalTasks(t *testing.T) {
-	body := `[{"taskID":1,"title":"t1"},{"taskID":2,"title":"t2"}]`
+	body := `[{"id":1,"name":"t1","desc":"t1"},{"id":2,"name":"t2","desc":"t2"}]`
 	want := []system.Task{
-		{ID: 1, Title: "t1"},
-		{ID: 2, Title: "t2"},
+		{ID: 1, Name: "t1", Desc: "t1"},
+		{ID: 2, Name: "t2", Desc: "t2"},
 	}
 
 	tasks, err := UnmarshalTasks([]byte(body))
